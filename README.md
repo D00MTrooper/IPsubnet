@@ -1,2 +1,2 @@
 # IPsubnet
-Small project aimed at facilitating calculations
+Small project aimed at facilitating calculations.(still in progress)
