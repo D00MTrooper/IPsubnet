@@ -3,7 +3,7 @@
 #include <math.h>
 using namespace std;
 
-typedef struct ip {
+ struct ip {
     int octet_decimal, mask_decimal;
     string octet_binary, mask_binary;
 
@@ -92,63 +92,126 @@ void IpClass(string first_octet){
 
 void ToDecimal(string binary){
   string bit;
-  int temp_decimal, x, wykladnik;
+  int temp_decimal, x, wykladnik, amount, to_add, choice;
 
   wykladnik = 7;
   temp_decimal = 0;
 
-  for (int i=0; i<=7; i++){
+  //sprawdzenie długości oktetu
+  amount = binary.length();
 
-    bit = binary.substr(i,1);
+  if (amount==8){
+    for (int i=0; i<=7; i++){
 
-    if (bit=="1"){
-      x = pow(2,wykladnik-i);
+      bit = binary.substr(i,1);
+
+      if (bit=="1"){
+        x = pow(2,wykladnik-i);
+      }
+      else x = 0;
+
+    temp_decimal=temp_decimal+x;
     }
-    else x = 0;
+    decimal = temp_decimal;
 
-  temp_decimal=temp_decimal+x;
+  } else if (amount<8){
+    cout << "\nGdzie dodać zera";
+    cout << "\n1.Z przodu";
+    cout << "\n2.Z tylu";
+    cout << "\n: ";
+    cin >> choice;
+
+    if (choice==1){
+      to_add = 8 - amount;
+      string supplement(to_add, '0');
+      binary = supplement + binary;
+      for (int i=0; i<=7; i++){
+
+        bit = binary.substr(i,1);
+
+        if (bit=="1"){
+          x = pow(2,wykladnik-i);
+        }
+        else x = 0;
+
+      temp_decimal=temp_decimal+x;
+      }
+      decimal = temp_decimal;
+    }
+  } else if (choice==2){
+    to_add = 8 - amount;
+    string supplement(to_add, '0');
+    binary = binary + supplement;
+    for (int i=0; i<=7; i++){
+
+      bit = binary.substr(i,1);
+
+      if (bit=="1"){
+        x = pow(2,wykladnik-i);
+      }
+      else x = 0;
+
+    temp_decimal=temp_decimal+x;
+    }
+    decimal = temp_decimal;
+  }
   }
 
-  decimal = temp_decimal;
-
-}
 
 int main()
 {
-    int liczba, i, wybór;
-    i = 0;
-    cout << flaga1;
+    int liczba, i, choice_ip;
 
-    for (i = 0; i <= 3; i++) {
+    cout << "\nJak chcesz podac adres ip";
+    cout << "\n--------------";
+    cout << "\n1. w systemie dziesiętnym";
+    cout << "\n2. w systemie binarnym";
+    cout << "\n: ";
+    cin >> choice_ip;
 
-        cout << "\nPodaj " << i + 1 << " oktet: ";
-        cin >> orginal[i].octet_decimal;
-        ToBinary(orginal[i].octet_decimal);
+    switch (choice_ip) {
+      case 1:
+        {
+          i = 0;
+          for (i = 0; i <= 3; i++) {
 
-        if (flaga1 == 1) {
-            cout << "\nPodaj oktet jeszcze raz";
-            i--;
-            flaga1=0;
-        } else {
-            cout << "\nOktet " << i + 1 << ": " << binary;
-            orginal[i].octet_binary = binary;
+              cout << "\nPodaj " << i + 1 << " oktet: ";
+              cin >> orginal[i].octet_decimal;
+              ToBinary(orginal[i].octet_decimal);
+
+              if (flaga1 == 1) {
+                  cout << "\nPodaj oktet jeszcze raz";
+                  i--;
+                  flaga1=0;
+              } else {
+                  cout << "\nOktet " << i + 1 << ": " << binary;
+                  orginal[i].octet_binary = binary;
+              }
+
+          }
+
+          cout << "\n\nAdres IP w systemie dziesiętnym: " << orginal[0].octet_decimal << "." << orginal[1].octet_decimal << "." << orginal[2].octet_decimal << "." << orginal[3].octet_decimal;
+          cout << "\nAdres IP w systemie binarnym: " << orginal[0].octet_binary << "." << orginal[1].octet_binary << "." << orginal[2].octet_binary << "." << orginal[3].octet_binary;
         }
+      break;
+      case 2:
+        {
+          for (i = 0; i<=3; i++){
 
+            cout << "\nPodaj " << i + 1 << " oktet: ";
+            cin >> orginal[i].octet_binary;
+
+            ToDecimal(orginal[i].octet_binary);
+            cout << "\nOktet " << i + 1 << ": " << decimal;
+            orginal[i].octet_decimal = decimal;
+
+          }
+
+          cout << "\n\nAdres IP w systemie dziesiętnym: " << orginal[0].octet_decimal << "." << orginal[1].octet_decimal << "." << orginal[2].octet_decimal << "." << orginal[3].octet_decimal;
+          cout << "\nAdres IP w systemie binarnym: " << orginal[0].octet_binary << "." << orginal[1].octet_binary << "." << orginal[2].octet_binary << "." << orginal[3].octet_binary;
+
+        }
+      break;
     }
-
-    cout << "\n\nAdres IP w systemie dziesiętnym: " << orginal[0].octet_decimal << "." << orginal[1].octet_decimal << "." << orginal[2].octet_decimal << "." << orginal[3].octet_decimal;
-    cout << "\nAdres IP w systemie binarnym: " << orginal[0].octet_binary << "." << orginal[1].octet_binary << "." << orginal[2].octet_binary << "." << orginal[3].octet_binary;
-
-    IpClass(orginal[0].octet_binary);
-
-    cout << "\n\nMaska w systemie dziesiętnym: " << orginal[0].mask_decimal << "." << orginal[1].mask_decimal << "." << orginal[2].mask_decimal << "." << orginal[3].mask_decimal;
-    cout << "\nMaska w systemie binarnym: " << orginal[0].mask_binary << "." << orginal[1].mask_binary << "." << orginal[2].mask_binary << "." << orginal[3].mask_binary;
-
-    for (i = 0; i<=3; i++){
-      ToDecimal(orginal[i].octet_binary);
-      orginal[i].octet_decimal = decimal;
-      cout << "\nOktet nr: " << i <<" po zmianie z binarnego" << orginal[i].octet_decimal;
-    }
-
     return 0;
 }
