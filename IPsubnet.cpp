@@ -13,17 +13,17 @@ ip orginal[4];
 string binary;
 int flaga1, decimal;
 
-void ToBinary(int decimal)
+void ToBinary(int decimalToBinary)
 {
     int bit, i, j, amount, to_add;
     int temp_binary[8]; // maksymalna liczba bitów potrzebna do zapisu liczby całkowitej
 
-    if ((decimal != 0) && (decimal < 255)) {
+    if ((decimalToBinary != 0) && (decimalToBinary < 255)) {
         // zamiana na postać binarną
-        for (i = 0; decimal > 0; i++) {
-            bit = decimal % 2;
+        for (i = 0; decimalToBinary > 0; i++) {
+            bit = decimalToBinary % 2;
             temp_binary[i] = bit;
-            decimal /= 2;
+            decimalToBinary /= 2;
         }
 
         // konwersja na string
@@ -39,9 +39,9 @@ void ToBinary(int decimal)
             string supplement(to_add, '0');
             binary = supplement + binary;
         }
-    } else if (decimal == 0) {
+    } else if (decimalToBinary == 0) {
         binary = "00000000";
-    }else if (decimal > 255) {
+    }else if (decimalToBinary > 255) {
         flaga1 = 1;
     }
 }
@@ -90,7 +90,7 @@ void IpClass(string first_octet){
   }
 }
 
-void ToDecimal(string binary){
+void ToDecimal(string binaryToDecimal){
   string bit;
   int temp_decimal, x, wykladnik, amount, to_add, choice;
 
@@ -98,12 +98,13 @@ void ToDecimal(string binary){
   temp_decimal = 0;
 
   //sprawdzenie długości oktetu
-  amount = binary.length();
+  amount = binaryToDecimal.length();
+  cout << "length: " << amount;
 
   if (amount==8){
     for (int i=0; i<=7; i++){
 
-      bit = binary.substr(i,1);
+      bit = binaryToDecimal.substr(i,1);
 
       if (bit=="1"){
         x = pow(2,wykladnik-i);
@@ -124,10 +125,11 @@ void ToDecimal(string binary){
     if (choice==1){
       to_add = 8 - amount;
       string supplement(to_add, '0');
-      binary = supplement + binary;
+      binaryToDecimal = supplement + binaryToDecimal;
+      cout << "po zmianie" << binaryToDecimal;
       for (int i=0; i<=7; i++){
 
-        bit = binary.substr(i,1);
+        bit = binaryToDecimal.substr(i,1);
 
         if (bit=="1"){
           x = pow(2,wykladnik-i);
@@ -138,29 +140,32 @@ void ToDecimal(string binary){
       }
       decimal = temp_decimal;
     }
-  } else if (choice==2){
-    to_add = 8 - amount;
-    string supplement(to_add, '0');
-    binary = binary + supplement;
-    for (int i=0; i<=7; i++){
+    if (choice == 2) {
+        to_add = 8 - amount;
+        string supplement(to_add, '0');
+        binaryToDecimal = binaryToDecimal + supplement;
+        cout << "po zmianie" << binaryToDecimal;
+        for (int i = 0; i <= 7; i++) {
 
-      bit = binary.substr(i,1);
+            bit = binaryToDecimal.substr(i, 1);
 
-      if (bit=="1"){
-        x = pow(2,wykladnik-i);
-      }
-      else x = 0;
+            if (bit == "1") {
+                x = pow(2, wykladnik - i);
+            }
+            else x = 0;
 
-    temp_decimal=temp_decimal+x;
+            temp_decimal = temp_decimal + x;
+        }
+        decimal = temp_decimal;
     }
-    decimal = temp_decimal;
-  }
+  }  
+  
   }
 
 
 int main()
 {
-    int liczba, i, choice_ip;
+    int  i, choice_ip;
 
     cout << "\nJak chcesz podac adres ip";
     cout << "\n--------------";
@@ -204,7 +209,9 @@ int main()
             ToDecimal(orginal[i].octet_binary);
             cout << "\nOktet " << i + 1 << ": " << decimal;
             orginal[i].octet_decimal = decimal;
-
+            orginal[i].octet_binary = binary;
+            cout << "\noktet " << i + 1 << ":" << orginal[i].octet_binary;
+           
           }
 
           cout << "\n\nAdres IP w systemie dziesiętnym: " << orginal[0].octet_decimal << "." << orginal[1].octet_decimal << "." << orginal[2].octet_decimal << "." << orginal[3].octet_decimal;
