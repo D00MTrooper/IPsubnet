@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <math.h>
-#include <conio.h>
+//#include <conio.h>
 using namespace std;
 
 struct ip {
@@ -12,7 +12,7 @@ struct ip {
 
 ip orginal[4], sub_by_mask[4];
 string binary;
-int flaga1, flaga_type, decimal;
+int flaga1, flaga_type, sub_break, decimal;
 
 void ZeroOneCheck(string input) {
 
@@ -36,10 +36,10 @@ string AddZero(int amount) {
 void ToBinary(int decimalToBinary)
 {
     int bit, i, j, amount, to_add;
-    int temp_binary[8]; // maksymalna liczba bitów potrzebna do zapisu liczby ca³kowitej
+    int temp_binary[8]; // maksymalna liczba bitï¿½w potrzebna do zapisu liczby caï¿½kowitej
 
     if ((decimalToBinary != 0) && (decimalToBinary < 255)) {
-        // zamiana na postaæ binarn¹
+        // zamiana na postaï¿½ binarnï¿½
         for (i = 0; decimalToBinary > 0; i++) {
             temp_binary[i] = decimalToBinary % 2;
             decimalToBinary /= 2;
@@ -50,9 +50,9 @@ void ToBinary(int decimalToBinary)
         for (j = i - 1; j >= 0; j--) {
             binary += to_string(temp_binary[j]);
         }
-        //sprawdzenie d³ugoœci oktetu
+        //sprawdzenie dï¿½ugoï¿½ci oktetu
         amount = binary.length();
-        //uzupe³nie oktetu o 0 z przodu jeœli to potrzbne
+        //uzupeï¿½nie oktetu o 0 z przodu jeï¿½li to potrzbne
         if (amount < 8) {
             binary = AddZero(amount) + binary;
         }
@@ -121,10 +121,10 @@ int ToDecimal(string binaryToDecimal) {
     wykladnik = 7;
     temp_decimal = 0;
 
-    //sprawdzenie d³ugoœci oktetu
+    //sprawdzenie dï¿½ugoï¿½ci oktetu
     amount = binaryToDecimal.length();
 
-    if (amount == 8) {
+    if (amount == 8 && flaga1 != 1) {
         for (int i = 0; i <= 7; i++) {
 
             bit = binaryToDecimal.substr(i, 1);
@@ -139,7 +139,7 @@ int ToDecimal(string binaryToDecimal) {
         decimal = temp_decimal;
 
     }
-    else if (amount < 8) {
+    else if (amount < 8 && flaga1 != 1) {
         cout << "\nGdzie dodac zera";
         cout << "\n1.Z przodu";
         cout << "\n2.Z tylu";
@@ -177,7 +177,7 @@ int ToDecimal(string binaryToDecimal) {
             decimal = temp_decimal;
         }
     }
-    else if (amount > 8) {
+    else if (amount > 8 && flaga1 != 1) {
         flaga1 = 1;
     }
 
@@ -340,13 +340,18 @@ void ChooseIP() {
 }
 
 void SubnetByMask() {
-    int choice, prefix, subnet_octet, subnet_bits, amount, number_of_octets;
+    int prefix, subnet_octet, subnet_bits, amount, number_of_octets, choice;
+    flaga1 = 0;
 
     cout << "\nJak chcesz podac maske pod podsieci";
     cout << "\n1. W formie binarnej lub dziesietnej";
     cout << "\n2. W formie /...";
     cout << "\n:";
     cin >> choice;
+    if (cin.fail()) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
 
     switch (choice) {
     case 1:
@@ -360,6 +365,13 @@ void SubnetByMask() {
     {
         cout << "\nPodaj prefix: /";
         cin >> prefix;
+
+        if (cin.fail()) {
+            flaga1 = 1;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            break;
+        }
 
         subnet_octet = prefix / 8;
         subnet_bits = prefix % 8;
@@ -382,40 +394,50 @@ void SubnetByMask() {
             orginal[i].subnetmask_decimal = 0;
         }
     }
+    break;
+
+    default:
+    {
+       cout << "podaj jeszcze raz";
+       flaga1 = 1;
+    }
+    break;
     cout << "\n\nMaska w systemie dziesietnym: " << orginal[0].subnetmask_decimal << "." << orginal[1].subnetmask_decimal << "." << orginal[2].subnetmask_decimal << "." << orginal[3].subnetmask_decimal;
     cout << "\nMaska w systemie binarnym: " << orginal[0].subnetmask_binary << "." << orginal[1].subnetmask_binary << "." << orginal[2].subnetmask_binary << "." << orginal[3].subnetmask_binary;
     cout << "\n test " << orginal[1].octet_binary[2] << " ";
     }
 
+    if (flaga1 != 1){
+      //wyliczanie adresu podsieci
+      for (int i = 0; i <= 3; i++) {
+          if (orginal[i].subnetmask_binary == "11111111") {
+              sub_by_mask[i].octet_binary = orginal[i].octet_binary;
+              sub_by_mask[i].octet_decimal = orginal[i].octet_decimal;
+          }
+          else if (orginal[i].subnetmask_binary == "00000000") {
+              sub_by_mask[i].octet_binary = "00000000";
+              sub_by_mask[i].octet_decimal = 0;
+          }
+          else {
+              // poprawione nawiasy w warunku
+              for (int j = 0; j <= 7; j++) {
+                  if ((orginal[i].subnetmask_binary[j] == '1') && (orginal[i].octet_binary[j] == '1')) {
+                      sub_by_mask[i].octet_binary += '1';
+                  }
+                  else {
+                      sub_by_mask[i].octet_binary += '0';
+                  }
+              }
+              sub_by_mask[i].octet_decimal = ToDecimal(sub_by_mask[i].octet_binary);
+          }
+          sub_break = 1;
+      }
 
-    //wyliczanie adresu podsieci
-    for (int i = 0; i <= 3; i++) {
-        if (orginal[i].subnetmask_binary == "11111111") {
-            sub_by_mask[i].octet_binary = orginal[i].octet_binary;
-            sub_by_mask[i].octet_decimal = orginal[i].octet_decimal;
-        }
-        else if (orginal[i].subnetmask_binary == "00000000") {
-            sub_by_mask[i].octet_binary = "00000000";
-            sub_by_mask[i].octet_decimal = 0;
-        }
-        else {
-            // poprawione nawiasy w warunku
-            for (int j = 0; j <= 7; j++) {
-                if ((orginal[i].subnetmask_binary[j] == '1') && (orginal[i].octet_binary[j] == '1')) {
-                    sub_by_mask[i].octet_binary += '1';
-                }
-                else {
-                    sub_by_mask[i].octet_binary += '0';
-                }
-            }
-            cout << "\n\ntest dlugosci: " << sub_by_mask[i].octet_binary.length();
-            sub_by_mask[i].octet_decimal = ToDecimal(sub_by_mask[i].octet_binary);
-        }
+
+      cout << "\n\nAdres IP podsieci w systemie dziesietnym: " << sub_by_mask[0].octet_decimal << "." << sub_by_mask[1].octet_decimal << "." << sub_by_mask[2].octet_decimal << "." << sub_by_mask[3].octet_decimal;
+      cout << "\nAdres IP podsieci w systemie binarnym: " << sub_by_mask[0].octet_binary << "." << sub_by_mask[1].octet_binary << "." << sub_by_mask[2].octet_binary << "." << sub_by_mask[3].octet_binary;
     }
 
-
-    cout << "\n\nAdres IP podsieci w systemie dziesietnym: " << sub_by_mask[0].octet_decimal << "." << sub_by_mask[1].octet_decimal << "." << sub_by_mask[2].octet_decimal << "." << sub_by_mask[3].octet_decimal;
-    cout << "\nAdres IP podsieci w systemie binarnym: " << sub_by_mask[0].octet_binary << "." << sub_by_mask[1].octet_binary << "." << sub_by_mask[2].octet_binary << "." << sub_by_mask[3].octet_binary;
 
 }
 
@@ -427,6 +449,7 @@ int main()
     bool control;
 
     control = true;
+    sub_break = 0;
 
     while (control = true) {
 
@@ -460,7 +483,9 @@ int main()
                 flaga_type = 0;
                 ChooseIP();
                 cout << "\n----------------------------------";
-                SubnetByMask();
+                while (sub_break !=1) {
+                  SubnetByMask();
+                }
 
             }
 
@@ -484,8 +509,7 @@ int main()
 
 
 
-    _getch();
+  //  _getch();
 
     return 0;
 }
-
