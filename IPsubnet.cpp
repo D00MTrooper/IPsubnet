@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <math.h>
-//#include <conio.h>
+#include <conio.h>
 using namespace std;
 
 struct ip {
@@ -509,7 +509,7 @@ int main()
 
 
 
-  //  _getch();
+   _getch();
 
     return 0;
 }
